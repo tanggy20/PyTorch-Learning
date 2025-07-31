@@ -40,11 +40,14 @@
     <img class="course-image" src="RNN_Regression.gif">
 </a>
 
-### [Autoencoder](autoencoder.py)
+### <a href="autoencoder.py">Autoencoder</a>
 
 <a href="autoencoder.py">
-    <img class="course-image" src="autoencoder_training.gif">
-    <img class="course-image" src="3-dimension-MNIST.png">
+  <img src="autoencoder_training.gif" class="course-image" width="60%">
+</a>
+<br>          
+<a href="autoencoder.py">
+  <img src="3-dimension-MNIST.png" class="course-image" width="60%">
 </a>
 
 ### [GAN (Generative Adversarial Nets)](GAN.py)
