@@ -1,6 +1,8 @@
 import torch
 import matplotlib.pyplot as plt
 import torch.nn as nn
+import io
+from PIL import Image
 
 # torch.manual_seed(1)  # For reproducibility
 
@@ -52,7 +54,7 @@ optimizer_drop = torch.optim.Adam(dropnet.parameters(), lr=0.01)
 criterion = nn.MSELoss()
 
 plt.ion()
-
+frames = []
 for epoch in range(1000):
     # Overfitting network
     optimizer_overfit.zero_grad()
@@ -84,8 +86,25 @@ for epoch in range(1000):
         plt.text(0, -1.0, 'dropout loss=%.4f' % criterion(test_pred_drop, y_test).data.numpy(), fontdict={'size': 16, 'color': 'blue'})
         plt.legend(loc='upper left')
         plt.pause(0.1)
+        buf = io.BytesIO()  # 创建内存缓冲区
+        plt.savefig(buf, format='png', bbox_inches='tight')  # 保存当前Figure到缓冲区
+        buf.seek(0)  # 移动到缓冲区开头
+        img = Image.open(buf)  # 读取图像
+        frames.append(img.copy())  # 复制图像到帧列表（避免缓冲区释放问题）
+        buf.close()  # 关闭缓冲区
         overfittingnet.train()
         dropnet.train()
 
 plt.ioff()
 plt.show()
+if frames:
+    frames[0].save(
+        'dropout.gif',
+        save_all=True,
+        append_images=frames[1:],
+        duration=200,  # 每帧显示200毫秒（5帧/秒）
+        loop=0  # 无限循环
+    )
+    print("动态图已保存为 'dropout.gif'")
+else:
+    print("未捕获到有效帧，无法保存动态图")

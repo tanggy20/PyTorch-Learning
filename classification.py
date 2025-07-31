@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import io
+from PIL import Image
 
 # 1. 生成三分类数据集
 n_data = torch.ones(100, 2)  # 每个类别100个样本，2个特征
@@ -42,6 +44,7 @@ optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
 
 # 4. 训练网络
 plt.ion()  # 交互模式
+frames =[]
 for epoch in range(1, 101):
     # 前向传播
     outputs = net(x)  # 形状(300, 3)，每行对应3个类别的分数
@@ -67,6 +70,23 @@ for epoch in range(1, 101):
         plt.scatter(x.numpy()[:, 0], x.numpy()[:, 1], c=pred_y, s=50, cmap='cool', alpha=0.7)
         plt.text(-4, 4, f'Epoch: {epoch}, Loss: {loss.item():.4f}, Acc: {accuracy:.2f}', fontdict={'size': 12})
         plt.pause(0.1)
+        buf = io.BytesIO()  # 创建内存缓冲区
+        plt.savefig(buf, format='png', bbox_inches='tight')  # 保存当前Figure到缓冲区
+        buf.seek(0)  # 移动到缓冲区开头
+        img = Image.open(buf)  # 读取图像
+        frames.append(img.copy())  # 复制图像到帧列表（避免缓冲区释放问题）
+        buf.close()  # 关闭缓冲区
 
 plt.ioff()
 plt.show()
+if frames:
+    frames[0].save(
+        'classification.gif',
+        save_all=True,
+        append_images=frames[1:],
+        duration=200,  # 每帧显示200毫秒（5帧/秒）
+        loop=0  # 无限循环
+    )
+    print("动态图已保存为 'classification.gif'")
+else:
+    print("未捕获到有效帧，无法保存动态图")
